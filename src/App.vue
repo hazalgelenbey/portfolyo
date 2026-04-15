@@ -1,14 +1,50 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 const currentLang = ref('tr')
+const formStatus = ref('idle')
+const contactForm = reactive({
+  name: '',
+  email: '',
+  message: ''
+})
 
 const setLang = (lang) => {
   currentLang.value = lang
 }
 
-const formAction = 'https://formsubmit.co/hazalgelenbey@gmail.com'
-const siteUrl = 'https://portfolyo-7319bxtqr-hazalgelenbeys-projects.vercel.app/'
+const formAction = 'https://formsubmit.co/ajax/hazalgelenbey@gmail.com'
+
+const submitForm = async () => {
+  formStatus.value = 'sending'
+
+  try {
+    const response = await fetch(formAction, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      body: JSON.stringify({
+        name: contactForm.name,
+        email: contactForm.email,
+        message: contactForm.message,
+        _subject: 'Hazal Portfolio Contact Form'
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Form gönderilemedi')
+    }
+
+    contactForm.name = ''
+    contactForm.email = ''
+    contactForm.message = ''
+    formStatus.value = 'success'
+  } catch {
+    formStatus.value = 'error'
+  }
+}
 
 const translations = {
   tr: {
@@ -151,7 +187,9 @@ const translations = {
       email: 'E-posta',
       message: 'Mesaj',
       send: 'Mesaj Gönder',
-      note: 'Form doldurulduğunda mesaj doğrudan e-posta kutuma düşer.'
+      note: 'Form doldurulduğunda mesaj doğrudan e-posta kutuma düşer.',
+      success: 'Mesajın gönderildi. Form boş halde görünmeye devam eder.',
+      error: 'Bir sorun oldu. Lütfen tekrar dene ya da doğrudan mail at.'
     }
   },
   en: {
@@ -295,7 +333,9 @@ const translations = {
       email: 'Email',
       message: 'Message',
       send: 'Send Message',
-      note: 'Messages sent from this form are delivered directly to my email inbox.'
+      note: 'Messages sent from this form are delivered directly to my email inbox.',
+      success: 'Your message has been sent. The form stays visible and resets automatically.',
+      error: 'Something went wrong. Please try again or send me an email directly.'
     }
   }
 }
@@ -453,32 +493,32 @@ const content = computed(() => translations[currentLang.value])
     <section class="contact">
       <h2>{{ content.contactTitle }}</h2>
       <p>{{ content.contactText }}</p>
-      <form class="contact-form" :action="formAction" method="POST">
-        <input type="hidden" name="_subject" :value="`${content.profile.name} Portfolio Contact Form`" />
-        <input type="hidden" name="_captcha" value="false" />
-        <input type="hidden" name="_next" :value="siteUrl" />
-
+      <form class="contact-form" @submit.prevent="submitForm">
         <label>
           <span>{{ content.form.name }}</span>
-          <input type="text" name="name" required />
+          <input v-model="contactForm.name" type="text" name="name" required />
         </label>
 
         <label>
           <span>{{ content.form.email }}</span>
-          <input type="email" name="email" required />
+          <input v-model="contactForm.email" type="email" name="email" required />
         </label>
 
         <label>
           <span>{{ content.form.message }}</span>
-          <textarea name="message" rows="5" required></textarea>
+          <textarea v-model="contactForm.message" name="message" rows="5" required></textarea>
         </label>
 
         <div class="form-actions">
-          <button class="btn btn-primary" type="submit">{{ content.form.send }}</button>
+          <button class="btn btn-primary" type="submit" :disabled="formStatus === 'sending'">
+            {{ formStatus === 'sending' ? 'Sending...' : content.form.send }}
+          </button>
           <a class="btn btn-ghost" :href="content.profile.github" target="_blank" rel="noreferrer">{{ content.actions.github }}</a>
         </div>
       </form>
       <p class="form-note">{{ content.form.note }}</p>
+      <p v-if="formStatus === 'success'" class="form-feedback success">{{ content.form.success }}</p>
+      <p v-else-if="formStatus === 'error'" class="form-feedback error">{{ content.form.error }}</p>
     </section>
   </main>
 </template>
