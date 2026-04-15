@@ -7,6 +7,9 @@ const setLang = (lang) => {
   currentLang.value = lang
 }
 
+const formAction = 'https://formsubmit.co/hazalgelenbey@gmail.com'
+const siteUrl = 'https://portfolyo-7319bxtqr-hazalgelenbeys-projects.vercel.app/'
+
 const translations = {
   tr: {
     brand: 'Hazal Gelenbey',
@@ -86,6 +89,19 @@ const translations = {
           'Modern web teknolojileri ile tanışarak frontend geliştirme temelleri kazandım. Takım çalışması, kod düzeni ve geliştirme süreçleri konusunda pratik deneyim elde ettim.'
       }
     ],
+    projectsTitle: 'Öne çıkan proje',
+    projectsLead: 'Gerçek kullanıcıya ulaşmış ürün deneyimi',
+    projects: [
+      {
+        title: 'Worknitive iOS App',
+        subtitle: 'App Store’da yayında canlı ürün',
+        description:
+          'Flutter ile geliştirilen ve aktif olarak kullanılan mobil ürünün geliştirme süreçlerinde yer aldım. Arayüz iyileştirmeleri, kullanıcı akışları, hata düzeltmeleri ve ürün deneyimini güçlendiren geliştirmeler üzerinde çalıştım.',
+        stack: 'Flutter • REST API • Firebase • Product Thinking',
+        link: 'https://apps.apple.com/tr/app/worknitive/id6759917958?l=tr',
+        linkLabel: 'App Store’da Gör'
+      }
+    ],
     focusTitle: 'Katkı sağlayabildiğim alanlar',
     focusLead: 'Tek bir role sıkışmadan değer üretme yaklaşımı',
     focusAreas: [
@@ -129,7 +145,14 @@ const translations = {
     ],
     contactTitle: 'Birlikte çalışalım',
     contactText:
-      'Yeni bir ekipte frontend, mobile ya da ürün odaklı bir rolde hızlıca değer üretmeye hazırım.'
+      'Yeni bir ekipte frontend, mobile ya da ürün odaklı bir rolde hızlıca değer üretmeye hazırım.',
+    form: {
+      name: 'Ad Soyad',
+      email: 'E-posta',
+      message: 'Mesaj',
+      send: 'Mesaj Gönder',
+      note: 'Form doldurulduğunda mesaj doğrudan e-posta kutuma düşer.'
+    }
   },
   en: {
     brand: 'Hazal Gelenbey',
@@ -209,6 +232,19 @@ const translations = {
           'I gained my frontend foundations through hands-on exposure to modern web technologies, teamwork, code organization, and development processes.'
       }
     ],
+    projectsTitle: 'Featured project',
+    projectsLead: 'Experience on a live product used by real users',
+    projects: [
+      {
+        title: 'Worknitive iOS App',
+        subtitle: 'Live product published on the App Store',
+        description:
+          'I took part in the development process of an actively used mobile product built with Flutter. I worked on interface improvements, user flows, bug fixing, and product enhancements that improved the overall user experience.',
+        stack: 'Flutter • REST API • Firebase • Product Thinking',
+        link: 'https://apps.apple.com/tr/app/worknitive/id6759917958?l=tr',
+        linkLabel: 'View on App Store'
+      }
+    ],
     focusTitle: 'Where I add value',
     focusLead: 'A flexible approach beyond a single title',
     focusAreas: [
@@ -253,7 +289,14 @@ const translations = {
     ],
     contactTitle: 'Let’s work together',
     contactText:
-      'I am ready to contribute quickly in a frontend, mobile, or product-focused role within a new team.'
+      'I am ready to contribute quickly in a frontend, mobile, or product-focused role within a new team.',
+    form: {
+      name: 'Full Name',
+      email: 'Email',
+      message: 'Message',
+      send: 'Send Message',
+      note: 'Messages sent from this form are delivered directly to my email inbox.'
+    }
   }
 }
 
@@ -351,6 +394,28 @@ const content = computed(() => translations[currentLang.value])
 
     <section class="block">
       <div class="block-head">
+        <h2>{{ content.projectsTitle }}</h2>
+        <p>{{ content.projectsLead }}</p>
+      </div>
+      <div class="project-list">
+        <article v-for="project in content.projects" :key="project.title" class="project-card">
+          <div class="project-top">
+            <div>
+              <h3>{{ project.title }}</h3>
+              <p class="project-subtitle">{{ project.subtitle }}</p>
+            </div>
+            <a class="btn btn-ghost" :href="project.link" target="_blank" rel="noreferrer">
+              {{ project.linkLabel }}
+            </a>
+          </div>
+          <p class="project-description">{{ project.description }}</p>
+          <p class="project-stack">{{ project.stack }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
         <h2>{{ content.focusTitle }}</h2>
         <p>{{ content.focusLead }}</p>
       </div>
@@ -388,10 +453,32 @@ const content = computed(() => translations[currentLang.value])
     <section class="contact">
       <h2>{{ content.contactTitle }}</h2>
       <p>{{ content.contactText }}</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" :href="`mailto:${content.profile.email}`">{{ content.profile.email }}</a>
-        <a class="btn btn-ghost" :href="content.profile.github" target="_blank" rel="noreferrer">{{ content.actions.github }}</a>
-      </div>
+      <form class="contact-form" :action="formAction" method="POST">
+        <input type="hidden" name="_subject" :value="`${content.profile.name} Portfolio Contact Form`" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_next" :value="siteUrl" />
+
+        <label>
+          <span>{{ content.form.name }}</span>
+          <input type="text" name="name" required />
+        </label>
+
+        <label>
+          <span>{{ content.form.email }}</span>
+          <input type="email" name="email" required />
+        </label>
+
+        <label>
+          <span>{{ content.form.message }}</span>
+          <textarea name="message" rows="5" required></textarea>
+        </label>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">{{ content.form.send }}</button>
+          <a class="btn btn-ghost" :href="content.profile.github" target="_blank" rel="noreferrer">{{ content.actions.github }}</a>
+        </div>
+      </form>
+      <p class="form-note">{{ content.form.note }}</p>
     </section>
   </main>
 </template>
